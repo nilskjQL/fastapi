@@ -41,6 +41,7 @@ class User(UserBase):
     id: int
     is_active: bool
     items: List[Item] = []
+    things: List[Thing] = []
 
     class Config:
         orm_mode = True
