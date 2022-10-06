@@ -4,10 +4,10 @@ import psycopg2
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from . import crud, models, schemas
+from . import dto, entities, services
 from .database import SessionLocal, engine
 
-models.Base.metadata.create_all(bind=engine)
+entities.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -18,33 +18,43 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
+@app.post("/users/", response_model=dto.User)
+def create_user(user: dto.UserCreate, db: Session = Depends(get_db)):
+    db_user = services.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+    return services.create_user(db=db, user=user)
 
-@app.get("/users/", response_model=List[schemas.User])
+@app.get("/users/", response_model=List[dto.User])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
+    users = services.get_users(db, skip=skip, limit=limit)
     return users
 
-@app.get("/users/{user_id}", response_model=schemas.User)
+@app.get("/users/{user_id}", response_model=dto.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
+    db_user = services.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
+@app.post("/users/{user_id}/items/", response_model=dto.Item)
 def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
+    user_id: int, item: dto.ItemCreate, db: Session = Depends(get_db)
 ):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
+    return services.create_user_item(db=db, item=item, user_id=user_id)
 
+@app.post("/users/{user_id}/things/", response_model=dto.Item)
+def create_thing_for_user(
+    user_id: int, item: dto.ItemCreate, db: Session = Depends(get_db)
+):
+    return services.create_user_item(db=db, item=item, user_id=user_id)
 
-@app.get("/items/", response_model=List[schemas.Item])
+@app.get("/things/", response_model=List[dto.Thing])
 def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
+    items = services.get_things(db, skip=skip, limit=limit)
+    return items
+
+@app.get("/items/", response_model=List[dto.Item])
+def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = services.get_items(db, skip=skip, limit=limit)
     return items

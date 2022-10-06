@@ -19,6 +19,15 @@ class Item(ItemBase):
     class Config:
         orm_mode = True
 
+class ThingCreate(ItemBase):
+    pass
+
+class Thing(ItemBase):
+    id: int
+    owner_id: int
+
+    class Config:
+        orm_mode = True
 
 class UserBase(BaseModel):
     email: str
