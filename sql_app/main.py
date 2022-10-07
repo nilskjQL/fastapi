@@ -43,17 +43,6 @@ def create_item_for_user(
 ):
     return services.create_user_item(db=db, item=item, user_id=user_id)
 
-@app.post("/users/{user_id}/things/", response_model=dto.Item)
-def create_thing_for_user(
-    user_id: int, item: dto.ItemCreate, db: Session = Depends(get_db)
-):
-    return services.create_user_item(db=db, item=item, user_id=user_id)
-
-@app.get("/things/", response_model=List[dto.Thing])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = services.get_things(db, skip=skip, limit=limit)
-    return items
-
 @app.get("/items/", response_model=List[dto.Item])
 def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     items = services.get_items(db, skip=skip, limit=limit)

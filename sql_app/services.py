@@ -23,9 +23,6 @@ def create_user(db: Session, user: dto.UserCreate):
 def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.query(entities.Item).offset(skip).limit(limit).all()
 
-def get_things(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(entities.Thing).offset(skip).limit(limit).all()
-
 def create_thing(db: Session, user: dto.UserCreate):
     fake_hashed_password = user.password + "notreallyhashed"
     db_user = entities.User(email=user.email, hashed_password=fake_hashed_password)
@@ -36,13 +33,6 @@ def create_thing(db: Session, user: dto.UserCreate):
 
 def create_user_item(db: Session, item: dto.ItemCreate, user_id: int):
     db_item = entities.Item(**item.dict(), owner_id=user_id)
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
-
-def create_user_thing(db: Session, item: dto.ItemCreate, user_id: int):
-    db_item = entities.Thing(**item.dict(), owner_id=user_id)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
